@@ -22,7 +22,27 @@ function operate(op, num1, num2) {
             break;
     }
 
-    document.querySelector("#display").value = store;
+    store = parseFloat(Math.round(store + 'e' + 9) + 'e-' + 9);
+
+    if (store.toString().includes(".")) {
+        if (store.toString().length <= 10) {
+            let splitCommas = store.toString().split(".");
+            document.querySelector("#display").value = `${Number(splitCommas[0]).toLocaleString()}.${splitCommas[1]}`;
+        }
+        else {
+            store = store.toExponential();
+            document.querySelector("#display").value = store.split("+").join("");
+        }
+    }
+    else {
+        if (store.toString().length <= 9) {
+            document.querySelector("#display").value = (store).toLocaleString();
+        }
+        else {
+            store = store.toExponential();
+            document.querySelector("#display").value = store.split("+").join("");
+        }
+    }
     firstNum = `${store}`;
     secondNum = null;
     operator = null;
@@ -67,17 +87,32 @@ function clear() {
 
 document.querySelector(".container").addEventListener("click", (event) => {
     if (event.target.className === "number") {
+        let removeCommas;
+        if (document.querySelector("#display").value === "0" || (firstNum !== null && operator !== null && secondNum === null)) {
+            removeCommas = event.target.textContent;
+            document.querySelector("#display").value = removeCommas;
+        }
+        else {
+            removeCommas = document.querySelector("#display").value.split(",").join("");
+            if (removeCommas.includes(".")) {
+                if (removeCommas.length <= 9) {
+                    removeCommas += event.target.textContent;
+                    let splitCommas = removeCommas.split(".");
+                    document.querySelector("#display").value = `${Number(splitCommas[0]).toLocaleString()}.${splitCommas[1]}`;
+                }
+            }
+            else {
+                if (removeCommas.length <= 8) {
+                    removeCommas += event.target.textContent;
+                    document.querySelector("#display").value = (Number(removeCommas)).toLocaleString();
+                }
+            }
+        }
 
-        if (document.querySelector("#display").value === "0" || (firstNum !== null && operator !== null && secondNum === null))
-            document.querySelector("#display").value = event.target.textContent;
+        if (secondNum === operator)
+            firstNum = removeCommas;
         else
-            document.querySelector("#display").value += event.target.textContent;
-
-
-        if (secondNum === operator) // Null === Null, Null === "+",  122 === "+"
-            firstNum = document.querySelector("#display").value;
-        else
-            secondNum = document.querySelector("#display").value;
+            secondNum = removeCommas;
 
         console.log(`Num1: ${firstNum}\nNum2: ${secondNum}\nOperator: ${operator}\n`);
     }
@@ -128,8 +163,10 @@ document.querySelector(".container").addEventListener("click", (event) => {
         console.log(`Num1: ${firstNum}\nNum2: ${secondNum}\nOperator: ${operator}\n`);
     }
     else if (event.target.className === "decimal") {
+        let temp;
         if (operator === null) {
-            if (!firstNum.includes(".")) {
+            temp = firstNum.split(",").join("");
+            if (!temp.includes(".") && temp.length <= 8) {
                 document.querySelector("#display").value += ".";
                 firstNum += ".";
             }
@@ -140,7 +177,8 @@ document.querySelector(".container").addEventListener("click", (event) => {
                 secondNum = "0.";
             }
             else {
-                if (!secondNum.includes(".")) {
+                temp = secondNum.split(",").join("");
+                if (!temp.includes(".") && temp.length <= 8) {
                     document.querySelector("#display").value += ".";
                     secondNum += ".";
                 }
@@ -152,10 +190,12 @@ document.querySelector(".container").addEventListener("click", (event) => {
 
 document.querySelector("#clear").addEventListener("click", clear);
 
-// toLocaleString() to format the number with commas
+// issues with rounding the e notation big issues
 
-// toLocaleString().split(",").join("") to remove the commas
+// might add the +/-() sign
 
-// parseFloat(Math.round(Number + 'e' + 2) + 'e-' + 2)) for the rounding
+// might add the % sign
 
-// 9 digits, just the numbers not including the commas and .
+// add css to make it look nice(guaranteed)
+
+// might add keyboard support
